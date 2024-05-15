@@ -1,8 +1,7 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // bulk error: "!<length>\r\n<error>\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b'!';
+pub(crate) const PREFIX: u8 = b'!';
 
 #[derive(Debug, PartialEq)]
 pub struct RespBulkError(Vec<u8>);

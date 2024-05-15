@@ -1,8 +1,7 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // set: "~<number-of-elements>\r\n<element-1>...<element-n>"
-#[allow(dead_code)]
-const PREFIX: u8 = b'~';
+pub(crate) const PREFIX: u8 = b'~';
 
 #[derive(Debug, PartialEq)]
 pub struct RespSet {}

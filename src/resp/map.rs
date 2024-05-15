@@ -1,8 +1,7 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // map: "%<number-of-entries>\r\n<key-1><value-1>...<key-n><value-n>"
-#[allow(dead_code)]
-const PREFIX: u8 = b'%';
+pub(crate) const PREFIX: u8 = b'%';
 
 #[derive(Debug, PartialEq)]
 pub struct RespMap {}

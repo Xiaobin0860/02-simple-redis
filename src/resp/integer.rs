@@ -1,8 +1,7 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // integer: ":[<+|->]<value>\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b':';
+pub(crate) const PREFIX: u8 = b':';
 
 impl RespEncode for i64 {
     fn encode(&self) -> Vec<u8> {

@@ -2,8 +2,7 @@ use crate::{RespDecode, RespEncode, RespResult};
 
 // array: "*<number-of-elements>\r\n<element-1>...<element-n>"
 // null array: "*-1\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b'*';
+pub(crate) const PREFIX: u8 = b'*';
 
 #[derive(Debug, PartialEq)]
 pub struct RespArray {}

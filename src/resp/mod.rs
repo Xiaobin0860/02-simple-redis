@@ -33,6 +33,7 @@ mod set;
 mod simple_error;
 mod simple_string;
 
+use enum_dispatch::enum_dispatch;
 use thiserror::Error;
 
 pub use array::RespArray;
@@ -42,10 +43,15 @@ pub use frame::RespFrame;
 pub use map::RespMap;
 pub use null::RespNull;
 pub use set::RespSet;
-pub use simple_error::RespSimpleError;
-pub use simple_string::RespSimpleString;
+pub use simple_error::SimpleError;
+pub use simple_string::SimpleString;
 
-#[derive(Debug, Error)]
+const CRLF: &[u8] = b"\r\n";
+const NULL: &[u8] = b"_\r\n";
+const TRUE: &[u8] = b"#t\r\n";
+const FALSE: &[u8] = b"#f\r\n";
+
+#[derive(Debug, Error, PartialEq)]
 pub enum RespError {
     #[error("Invalid frame: {0}")]
     InvalidFrame(String),
@@ -56,16 +62,19 @@ pub enum RespError {
     #[error("Frame is not complete")]
     NotComplete,
 
-    #[error("Parse integer error: {0}")]
+    #[error("{0}")]
     ParseIntError(#[from] std::num::ParseIntError),
-    #[error("Parse float error: {0}")]
+    #[error("{0}")]
     ParseFloatError(#[from] std::num::ParseFloatError),
-    #[error("Utf8 error: {0}")]
-    Utf8Error(#[from] std::string::FromUtf8Error),
+    #[error("{0}")]
+    FromUtf8Error(#[from] std::string::FromUtf8Error),
+    #[error("{0}")]
+    Utf8Error(#[from] std::str::Utf8Error),
 }
 
 pub type RespResult<T> = Result<T, RespError>;
 
+#[enum_dispatch]
 pub trait RespEncode {
     fn encode(&self) -> Vec<u8>;
     fn byte_size(&self) -> usize;
@@ -73,4 +82,8 @@ pub trait RespEncode {
 
 pub trait RespDecode: Sized {
     fn decode(buf: &[u8]) -> RespResult<Self>;
+}
+
+fn find_crlf(buf: &[u8]) -> Option<usize> {
+    buf.windows(2).position(|w| w == CRLF)
 }

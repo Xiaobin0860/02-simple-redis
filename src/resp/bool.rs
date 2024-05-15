@@ -1,11 +1,9 @@
+use super::{FALSE, TRUE};
 use crate::{RespDecode, RespEncode, RespError, RespResult};
 
 // boolean: "#<t|f>\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b'#';
+pub(crate) const PREFIX: u8 = b'#';
 const BYTE_SIZE: usize = 4;
-const TRUE: &[u8] = b"#t\r\n";
-const FALSE: &[u8] = b"#f\r\n";
 
 impl RespEncode for bool {
     fn encode(&self) -> Vec<u8> {

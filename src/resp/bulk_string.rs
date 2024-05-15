@@ -1,8 +1,7 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // bulk string: "$<length>\r\n<data>\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b'$';
+pub(crate) const PREFIX: u8 = b'$';
 
 #[derive(Debug, PartialEq)]
 pub struct RespBulkString {}

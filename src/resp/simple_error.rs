@@ -1,13 +1,12 @@
 use crate::{RespDecode, RespEncode, RespResult};
 
 // error: "-Error message\r\n"
-#[allow(dead_code)]
-const PREFIX: u8 = b'-';
+pub(crate) const PREFIX: u8 = b'-';
 
 #[derive(Debug, PartialEq)]
-pub struct RespSimpleError {}
+pub struct SimpleError {}
 
-impl RespEncode for RespSimpleError {
+impl RespEncode for SimpleError {
     fn encode(&self) -> Vec<u8> {
         todo!()
     }
@@ -17,7 +16,7 @@ impl RespEncode for RespSimpleError {
     }
 }
 
-impl RespDecode for RespSimpleError {
+impl RespDecode for SimpleError {
     fn decode(_buf: &[u8]) -> RespResult<Self> {
         todo!()
     }
