@@ -3,8 +3,8 @@ use super::{
     simple_string,
 };
 use crate::{
-    RespArray, RespBulkError, RespBulkString, RespDecode, RespMap, RespNull, RespResult, RespSet,
-    SimpleError, SimpleString,
+    BulkError, BulkString, RespArray, RespDecode, RespError, RespMap, RespNull, RespResult,
+    RespSet, SimpleError, SimpleString,
 };
 use enum_dispatch::enum_dispatch;
 
@@ -13,8 +13,8 @@ use enum_dispatch::enum_dispatch;
 pub enum RespFrame {
     Array(RespArray),
     Bool(bool),
-    BulkError(RespBulkError),
-    BulkString(RespBulkString),
+    BulkError(BulkError),
+    BulkString(BulkString),
     Double(f64),
     Integer(i64),
     Map(RespMap),
@@ -30,8 +30,8 @@ impl RespDecode for RespFrame {
         match *prefix {
             array::PREFIX => RespArray::decode(buf).map(RespFrame::Array),
             bool::PREFIX => bool::decode(buf).map(RespFrame::Bool),
-            bulk_error::PREFIX => RespBulkError::decode(buf).map(RespFrame::BulkError),
-            bulk_string::PREFIX => RespBulkString::decode(buf).map(RespFrame::BulkString),
+            bulk_error::PREFIX => BulkError::decode(buf).map(RespFrame::BulkError),
+            bulk_string::PREFIX => BulkString::decode(buf).map(RespFrame::BulkString),
             double::PREFIX => f64::decode(buf).map(RespFrame::Double),
             integer::PREFIX => i64::decode(buf).map(RespFrame::Integer),
             map::PREFIX => RespMap::decode(buf).map(RespFrame::Map),
@@ -39,9 +39,27 @@ impl RespDecode for RespFrame {
             set::PREFIX => RespSet::decode(buf).map(RespFrame::Set),
             simple_error::PREFIX => SimpleError::decode(buf).map(RespFrame::SimpleError),
             simple_string::PREFIX => SimpleString::decode(buf).map(RespFrame::SimpleString),
-            _ => Err(crate::RespError::InvalidFrameType(format!(
+            _ => Err(RespError::InvalidFrameType(format!(
                 "Invalid frame type: {prefix}",
             ))),
         }
+    }
+}
+
+impl From<&str> for RespFrame {
+    fn from(s: &str) -> Self {
+        SimpleString(s.to_string()).into()
+    }
+}
+
+impl From<&[u8]> for RespFrame {
+    fn from(s: &[u8]) -> Self {
+        BulkString(s.to_vec()).into()
+    }
+}
+
+impl<const N: usize> From<&[u8; N]> for RespFrame {
+    fn from(s: &[u8; N]) -> Self {
+        BulkString(s.to_vec()).into()
     }
 }

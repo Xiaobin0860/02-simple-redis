@@ -1,4 +1,7 @@
-use std::str::{from_utf8, FromStr};
+use std::{
+    ops::Deref,
+    str::{from_utf8, FromStr},
+};
 
 use crate::{RespDecode, RespEncode, RespError, RespResult};
 
@@ -8,7 +11,7 @@ use super::{find_crlf, CRLF};
 pub(crate) const PREFIX: u8 = b'+';
 
 #[derive(Debug, PartialEq)]
-pub struct SimpleString(String);
+pub struct SimpleString(pub(crate) String);
 
 impl SimpleString {
     pub fn new(s: impl Into<String>) -> Self {
@@ -26,14 +29,21 @@ impl RespEncode for SimpleString {
     }
 
     fn byte_size(&self) -> usize {
-        self.0.len() + 3
+        self.len() + 3
     }
 }
 
 impl RespDecode for SimpleString {
     fn decode(buf: &[u8]) -> RespResult<Self> {
+        // 认为都从 RespFrame::decode 调用，不检查长度和前缀
         let end = find_crlf(buf).ok_or(RespError::NotComplete)?;
         Ok(Self::new(from_utf8(&buf[1..end])?))
+    }
+}
+
+impl From<&str> for SimpleString {
+    fn from(s: &str) -> Self {
+        Self::new(s)
     }
 }
 
@@ -42,6 +52,14 @@ impl FromStr for SimpleString {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(s.to_string()))
+    }
+}
+
+impl Deref for SimpleString {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -63,6 +81,8 @@ mod tests {
     #[test]
     fn test_byte_size() {
         assert_eq!(SimpleString::new("OK").byte_size(), 5);
+        let frame = RespFrame::from(SimpleString::new("OK"));
+        assert_eq!(frame.byte_size(), 5);
     }
 
     #[test]

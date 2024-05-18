@@ -33,12 +33,14 @@ mod set;
 mod simple_error;
 mod simple_string;
 
+use std::str::from_utf8;
+
 use enum_dispatch::enum_dispatch;
 use thiserror::Error;
 
 pub use array::RespArray;
-pub use bulk_error::RespBulkError;
-pub use bulk_string::RespBulkString;
+pub use bulk_error::BulkError;
+pub use bulk_string::BulkString;
 pub use frame::RespFrame;
 pub use map::RespMap;
 pub use null::RespNull;
@@ -86,4 +88,11 @@ pub trait RespDecode: Sized {
 
 fn find_crlf(buf: &[u8]) -> Option<usize> {
     buf.windows(2).position(|w| w == CRLF)
+}
+
+//
+fn read_len(_prefix: u8, buf: &[u8]) -> RespResult<(isize, usize)> {
+    let end = find_crlf(buf).ok_or(RespError::NotComplete)?;
+    let s = from_utf8(&buf[1..end])?;
+    Ok((s.parse().map_err(RespError::ParseIntError)?, end + 2))
 }
