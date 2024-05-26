@@ -1,10 +1,14 @@
+use std::ops::Deref;
+
 use super::CRLF;
 use crate::{resp::read_len, RespDecode, RespEncode, RespError, RespResult};
 
-// bulk string: "$<length>\r\n<data>\r\n"
 pub(crate) const PREFIX: u8 = b'$';
+pub(crate) const NULL: &[u8] = b"$-1\r\n";
 
-#[derive(Debug, PartialEq, Hash)]
+//bulk string: "$<length>\r\n<data>\r\n"
+//null bulk string: "$-1\r\n"
+#[derive(Debug, PartialEq, Default)]
 pub struct BulkString(pub(crate) Vec<u8>);
 impl BulkString {
     pub fn new(data: impl Into<Vec<u8>>) -> Self {
@@ -14,6 +18,9 @@ impl BulkString {
 
 impl RespEncode for BulkString {
     fn encode(&self) -> Vec<u8> {
+        if self.is_empty() {
+            return NULL.to_vec();
+        }
         let mut buf = Vec::with_capacity(self.byte_size());
         buf.push(PREFIX);
         buf.extend_from_slice(self.0.len().to_string().as_bytes());
@@ -24,13 +31,19 @@ impl RespEncode for BulkString {
     }
 
     fn byte_size(&self) -> usize {
-        self.0.len() + self.0.len().to_string().len() + 5
+        if self.is_empty() {
+            return NULL.len();
+        }
+        self.len() + self.len().to_string().len() + 5
     }
 }
 
 impl RespDecode for BulkString {
     fn decode(buf: &[u8]) -> RespResult<Self> {
         let (len, offset) = read_len(PREFIX, buf)?;
+        if len == -1 {
+            return Ok(BulkString::default());
+        }
         let total_len = len as usize + offset + 2;
         if buf.len() < total_len {
             return Err(RespError::NotComplete);
@@ -57,6 +70,14 @@ impl AsRef<[u8]> for BulkString {
     }
 }
 
+impl Deref for BulkString {
+    type Target = Vec<u8>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::RespFrame;
@@ -67,6 +88,10 @@ mod tests {
     fn test_encode() {
         let frame: RespFrame = BulkString::new(b"bulk string").into();
         assert_eq!(frame.encode(), b"$11\r\nbulk string\r\n");
+
+        let frame: RespFrame = BulkString::default().into();
+        assert_eq!(frame.encode(), NULL);
+        assert_eq!(5, frame.byte_size());
     }
 
     #[test]
@@ -99,5 +124,7 @@ mod tests {
                 "Invalid bulk string tail: [10, 10]".to_string()
             )),
         );
+
+        assert_eq!(RespFrame::decode(NULL), Ok(BulkString::default().into()),);
     }
 }

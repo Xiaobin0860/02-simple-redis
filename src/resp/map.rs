@@ -87,11 +87,10 @@ mod tests {
         );
         map.insert("foo".to_string(), (-123456.789).into());
 
+        let buf = b"%2\r\n+foo\r\n,-123456.789\r\n+hello\r\n$5\r\nworld\r\n";
         let frame: RespFrame = map.into();
-        assert_eq!(
-            &frame.encode(),
-            b"%2\r\n+foo\r\n,-123456.789\r\n+hello\r\n$5\r\nworld\r\n"
-        );
+        assert_eq!(&frame.encode(), buf);
+        assert_eq!(frame.byte_size(), buf.len());
     }
 
     #[test]
@@ -105,6 +104,7 @@ mod tests {
         );
         map.insert("foo".to_string(), BulkString::new(b"bar".to_vec()).into());
         assert_eq!(frame, map);
+        assert_eq!(frame.byte_size(), buf.len());
 
         Ok(())
     }
