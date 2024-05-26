@@ -4,7 +4,7 @@ use crate::{resp::read_len, RespDecode, RespEncode, RespError, RespResult};
 // bulk string: "$<length>\r\n<data>\r\n"
 pub(crate) const PREFIX: u8 = b'$';
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash)]
 pub struct BulkString(pub(crate) Vec<u8>);
 impl BulkString {
     pub fn new(data: impl Into<Vec<u8>>) -> Self {

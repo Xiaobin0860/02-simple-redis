@@ -55,6 +55,12 @@ impl FromStr for SimpleString {
     }
 }
 
+impl From<String> for SimpleString {
+    fn from(s: String) -> Self {
+        Self::new(s)
+    }
+}
+
 impl Deref for SimpleString {
     type Target = str;
 

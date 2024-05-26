@@ -15,7 +15,7 @@ pub enum RespFrame {
     Bool(bool),
     BulkError(BulkError),
     BulkString(BulkString),
-    Double(f64),
+    Double(f64), //f64不能直接实现Eq和Hash，将来可以包装成自定义类型
     Integer(i64),
     Map(RespMap),
     Null(RespNull),

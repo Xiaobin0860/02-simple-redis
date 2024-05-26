@@ -86,11 +86,12 @@ pub trait RespDecode: Sized {
     fn decode(buf: &[u8]) -> RespResult<Self>;
 }
 
+// return the position of CRLF
 fn find_crlf(buf: &[u8]) -> Option<usize> {
     buf.windows(2).position(|w| w == CRLF)
 }
 
-//
+// read the length of the frame, return (length, end_position)
 fn read_len(_prefix: u8, buf: &[u8]) -> RespResult<(isize, usize)> {
     let end = find_crlf(buf).ok_or(RespError::NotComplete)?;
     let s = from_utf8(&buf[1..end])?;
