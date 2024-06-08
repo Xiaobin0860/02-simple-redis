@@ -10,7 +10,7 @@ use super::{read_len, CRLF};
 pub(crate) const PREFIX: u8 = b'*';
 pub(crate) const NULL: &[u8] = b"*-1\r\n";
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RespArray(Vec<RespFrame>);
 
 impl RespEncode for RespArray {

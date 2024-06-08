@@ -6,7 +6,7 @@ use super::NULL;
 pub(crate) const PREFIX: u8 = b'_';
 const BYTE_SIZE: usize = 3;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RespNull;
 
 impl RespEncode for RespNull {

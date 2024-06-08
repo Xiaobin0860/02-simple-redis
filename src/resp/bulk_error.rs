@@ -4,7 +4,7 @@ use crate::{RespDecode, RespEncode, RespError, RespResult};
 // bulk error: "!<length>\r\n<error>\r\n"
 pub(crate) const PREFIX: u8 = b'!';
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BulkError(Vec<u8>);
 
 impl BulkError {

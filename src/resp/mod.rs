@@ -53,6 +53,8 @@ const NULL: &[u8] = b"_\r\n";
 const TRUE: &[u8] = b"#t\r\n";
 const FALSE: &[u8] = b"#f\r\n";
 
+pub const OK: &[u8] = b"+OK\r\n";
+
 #[derive(Debug, Error, PartialEq)]
 pub enum RespError {
     #[error("Invalid frame: {0}")]

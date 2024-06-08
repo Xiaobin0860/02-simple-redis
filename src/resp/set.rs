@@ -6,7 +6,7 @@ pub(crate) const PREFIX: u8 = b'~';
 
 // set: "~<number-of-elements>\r\n<element-1>...<element-n>"
 // 目前使用Vec实现，不使用HashSet是因为目前RespFrame不能直接实现Eq和Hash
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RespSet(Vec<RespFrame>);
 
 impl RespSet {

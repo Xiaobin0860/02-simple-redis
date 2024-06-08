@@ -6,7 +6,7 @@ use crate::{RespDecode, RespEncode, RespResult};
 // error: "-Error message\r\n"
 pub(crate) const PREFIX: u8 = b'-';
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SimpleError(String);
 
 impl SimpleError {

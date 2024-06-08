@@ -10,7 +10,7 @@ pub(crate) const PREFIX: u8 = b'%';
 
 // map: "%<number-of-entries>\r\n<key-1><value-1>...<key-n><value-n>"
 // only support string keys
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RespMap(BTreeMap<String, RespFrame>);
 
 impl RespMap {

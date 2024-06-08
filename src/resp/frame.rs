@@ -9,7 +9,7 @@ use crate::{
 use enum_dispatch::enum_dispatch;
 
 #[enum_dispatch(RespEncode)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RespFrame {
     Array(RespArray),
     Bool(bool),

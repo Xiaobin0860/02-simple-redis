@@ -1,4 +1,7 @@
-use std::ops::Deref;
+use std::{
+    fmt::{self, Display, Formatter},
+    ops::Deref,
+};
 
 use super::CRLF;
 use crate::{resp::read_len, RespDecode, RespEncode, RespError, RespResult};
@@ -8,7 +11,7 @@ pub(crate) const NULL: &[u8] = b"$-1\r\n";
 
 //bulk string: "$<length>\r\n<data>\r\n"
 //null bulk string: "$-1\r\n"
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct BulkString(pub(crate) Vec<u8>);
 impl BulkString {
     pub fn new(data: impl Into<Vec<u8>>) -> Self {
@@ -60,6 +63,30 @@ impl RespDecode for BulkString {
 
 impl From<&[u8]> for BulkString {
     fn from(s: &[u8]) -> Self {
+        BulkString::new(s)
+    }
+}
+
+impl From<&str> for BulkString {
+    fn from(s: &str) -> Self {
+        BulkString::new(s.as_bytes())
+    }
+}
+
+impl Display for BulkString {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", String::from_utf8_lossy(&self.0))
+    }
+}
+
+impl From<String> for BulkString {
+    fn from(s: String) -> Self {
+        BulkString::new(s)
+    }
+}
+
+impl<const N: usize> From<&[u8; N]> for BulkString {
+    fn from(s: &[u8; N]) -> Self {
         BulkString::new(s)
     }
 }

@@ -10,7 +10,7 @@ use super::{find_crlf, CRLF};
 // simple string: "+OK\r\n"
 pub(crate) const PREFIX: u8 = b'+';
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SimpleString(pub(crate) String);
 
 impl SimpleString {
