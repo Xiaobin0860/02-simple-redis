@@ -5,7 +5,7 @@ mod map;
 use crate::{Backend, RespArray, RespFrame, SimpleString};
 use enum_dispatch::enum_dispatch;
 use error::CommandError;
-use std::sync::OnceLock;
+use std::{str::from_utf8, sync::OnceLock};
 
 pub fn resp_ok() -> &'static RespFrame {
     static RESP_OK: OnceLock<RespFrame> = OnceLock::new();
@@ -81,13 +81,23 @@ impl TryFrom<RespArray> for Command {
 
     fn try_from(value: RespArray) -> Result<Self, Self::Error> {
         match value.first() {
-            Some(RespFrame::BulkString(ref cmd)) => match cmd.as_ref() {
-                b"GET" => Ok(Get::try_from(value)?.into()),
-                b"SET" => Ok(Set::try_from(value)?.into()),
-                b"HGET" => Ok(HGet::try_from(value)?.into()),
-                b"HSET" => Ok(HSet::try_from(value)?.into()),
-                _ => Ok(Unrecognized.into()),
-            },
+            Some(RespFrame::BulkString(ref cmd)) => {
+                let cmd = from_utf8(cmd.as_ref())
+                    .map_err(|_| {
+                        CommandError::InvalidCommand(
+                            "Command must be a valid UTF-8 string".to_string(),
+                        )
+                    })?
+                    .to_uppercase();
+                match cmd.as_str() {
+                    "GET" => Ok(Get::try_from(value)?.into()),
+                    "SET" => Ok(Set::try_from(value)?.into()),
+                    "HGET" => Ok(HGet::try_from(value)?.into()),
+                    "HSET" => Ok(HSet::try_from(value)?.into()),
+                    "HGETALL" => Ok(HGetAll::try_from(value)?.into()),
+                    _ => Ok(Unrecognized.into()),
+                }
+            }
             _ => Err(CommandError::InvalidCommand(
                 "Command must have a BulkString as the first argument".to_string(),
             )),

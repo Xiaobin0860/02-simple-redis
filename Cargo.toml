@@ -12,5 +12,11 @@ anyhow = "1"
 bytes = "1"
 dashmap = "5"
 enum_dispatch = "0.3"
+futures = "0.3"                                                            # SinkExt
 lazy_static = "1"
 thiserror = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "macros"] }
+tokio-stream = "0.1"                                                       # StreamExt
+tokio-util = { version = "0.7", features = ["codec"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

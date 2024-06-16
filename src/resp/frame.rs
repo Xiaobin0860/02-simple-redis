@@ -7,6 +7,7 @@ use crate::{
     RespSet, SimpleError, SimpleString,
 };
 use enum_dispatch::enum_dispatch;
+use tracing::debug;
 
 #[enum_dispatch(RespEncode)]
 #[derive(Debug, Clone, PartialEq)]
@@ -27,6 +28,7 @@ pub enum RespFrame {
 impl RespDecode for RespFrame {
     fn decode(buf: &[u8]) -> RespResult<Self> {
         let prefix = buf.first().ok_or(crate::RespError::NotComplete)?;
+        debug!("Decoding frame: {buf:?}");
         match *prefix {
             array::PREFIX => RespArray::decode(buf).map(RespFrame::Array),
             bool::PREFIX => bool::decode(buf).map(RespFrame::Bool),
